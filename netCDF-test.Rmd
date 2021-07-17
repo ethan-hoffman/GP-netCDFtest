@@ -1,0 +1,64 @@
+---
+title: "netCDF-test.Rmd"
+author: "Ethan Hoffman"
+date: "7/16/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = TRUE, warning = FALSE)
+library(tidyverse)
+library(ncdf4)
+library(ncdf4.helpers)
+library(PCICt)
+```
+
+
+##Create a file path to the netCDF file and then open the file from the file path
+```{r}
+river_filepath <- paste0("C:\\Users\\ehoff\\Documents\\Ethan\\Bren School\\2021-2022 Group Project\\Data\\db33_saltstats.nc")
+#NOTE: You will need to save the netCDF file to your own computer to establish a file path (by telling RSTudio to look for the file in the folder that you save it in).
+##Addendum: You will need to save the netCDF file to your own computer because the file is too large to transfer to GitHub. The file can be accessed from the Data folder on our shared Google Drive or from any remote desktop.
+
+river_output <- nc_open(river_filepath)
+```
+
+
+##Access the netCDF file after opening the file from the file path
+```{r}
+river_output
+```
+
+
+##Read all values of a specific variable (displayed as "var" in the river_output tab) into an R object using the ncvar_get function
+###In this example, I have R read all values of the Mesh variable
+```{r}
+mesh <- ncvar_get(river_output, varid = "Mesh")
+
+summary(mesh)
+```
+
+
+##Read in the node_lon and node_lat variables using ncvar_get.
+```{r}
+lat <- ncvar_get(river_output, varid = "node_lat")
+
+lon <- ncvar_get(river_output, varid = "node_lon")
+```
+
+
+##Access the time dimension and calendar used in this file by using nc_open to access these values from the metadata.
+```{r}
+river_output$dim$time$units
+
+river_output$dim$time$calendar
+#Note: The time dimension from the metadata appears as "NULL" in the Console.
+```
+
+
+##Attempt to read in the time variable of the river model output.
+```{r}
+tas_time <- nc.get.time.series(river_output, v = "tas",
+                               time.dim.name = "time")
+#Note: There is no time dimension in the file.
+```
